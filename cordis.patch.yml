@@ -1,0 +1,33 @@
+# The @argszero/dsh-recursive-delete-guard bundle patch: mount and go.
+#
+# Discussion #10569 reports a cleanup meant to remove one project subdirectory
+# that removed the root of C: instead. The command was
+#
+#   cmd /c "rd /s /q \"$d\""
+#
+# written inside a PowerShell call. PowerShell's escape character is a backtick,
+# not a backslash, so `\"` does not escape: the string ends at that quote and the
+# delete verb is left holding `\`. Measured on PowerShell 7.6.7 with a stand-in
+# `cmd` that prints its argv —
+#
+#   cmd /c "rd /s /q \"$d\""   →  argv[1] = `rd /s /q \`
+#                                 argv[2] = `<the path>\`
+#   cmd /c "rd /s /q `"$d`""   →  argv[1] = `rd /s /q "<the path>"`   (correct)
+#
+# — and the reporter's own stderr agrees independently: every path it lists is
+# anchored at `\` (`\PROGRA~2`, `\$RECYCLE.BIN`, `\pagefile.sys`). The delete
+# walked the drive root; nothing stopped it, because `danger-full-access` means
+# exactly what it says and the harness runs the command it is given.
+#
+# This plugin adds the one check that would have caught it, at the last moment it
+# can be caught: before dispatch, the command is split in the dialect of the
+# shell that would run it, `cmd /c` and `sh -c` wrappers are followed, and a
+# recursive delete whose operand is a root — rather than a directory — is denied
+# with a reason that names the operand.
+#
+# It is a floor, not the fix. The upstream repair is what the report asks for in
+# items 1, 2 and 4: validate a destructive target before running it, and make the
+# timeout kill the process tree. This plugin can only refuse; it cannot teach a
+# shell to hand over the path the author meant.
+plugins:
+  '@argszero/dsh-recursive-delete-guard': {}
