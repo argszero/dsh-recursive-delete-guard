@@ -53,10 +53,17 @@ A shell does not always hand a delete program the path the command text appears 
 ## Install
 
 ```sh
-npm i github:argszero/dsh-recursive-delete-guard
+dsh plugin --profile <profile> add github:argszero/dsh-recursive-delete-guard
 ```
 
-then mount it through its bundle patch like any other DSH plugin:
+That one command installs the package into the profile and adds it to the
+profile's bundle list. A plain `npm i` of the same spec is **inert on its own**:
+a bundle becomes a layer only when the profile's `package.json` lists it under
+`dsh.profile.bundles` (`packages/boot/app-boot/src/profile.ts`), and the plugin
+manager is what writes that list after an install
+(`packages/boot/plugin-manager/src/operations.ts`).
+
+Mounted by hand instead:
 
 ```yaml
 # cordis.yml
