@@ -64,6 +64,11 @@ describe('the published surface', () => {
 
   it('keeps its bundle patch pointing at itself', () => {
     const patch = readFileSync(join(ROOT, 'cordis.patch.yml'), 'utf8')
-    assert.match(patch, new RegExp(`^  '${manifest.name.replaceAll('/', '\\/')}': \\{\\}$`, 'mu'))
+    // The bundle overlay is a top-level ARRAY of loader patch entries; `dsh plugin add`
+    // rejects anything else ("must be a top-level YAML array of loader patch entries"),
+    // and a `plugins:` mapping is a cordis.yml loader config, not an overlay.
+    const body = patch.split('\n').filter((line) => line.trim() !== '' && !line.trim().startsWith('#'))
+    assert.equal(body[0], '- insert:', 'a bundle overlay must open a top-level array')
+    assert.match(patch, new RegExp(`^      name: '${manifest.name.replaceAll('/', '\\/')}'$`, 'mu'))
   })
 })

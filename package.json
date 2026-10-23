@@ -1,6 +1,6 @@
 {
   "name": "@argszero/dsh-recursive-delete-guard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Refuses a recursive delete whose operand is a filesystem root rather than a directory. The reported shape: `cmd /c \"rd /s /q \\\"$d\\\"\"` written inside a PowerShell command, where `\\\"` is not an escape (PowerShell escapes with a backtick), so the string closes early and the delete verb is handed `\\\\` — the root of the current drive — measured on PowerShell 7.6.7. This plugin tokenizes the command in the dialect that will actually parse it, follows `cmd /c` and `sh -c` wrappers, and denies only the catastrophic shapes: a root, a drive root, a bare drive letter, a separator relative to the current drive's root, a path that normalizes to its own starting directory, or an empty operand. A delete aimed at a real subdirectory passes untouched, including outside the workspace — this is not a sandbox. Zero runtime dependencies, fail-open, no build step.",
   "publishConfig": {
     "access": "public"

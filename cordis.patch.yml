@@ -29,5 +29,10 @@
 # items 1, 2 and 4: validate a destructive target before running it, and make the
 # timeout kill the process tree. This plugin can only refuse; it cannot teach a
 # shell to hand over the path the author meant.
-plugins:
-  '@argszero/dsh-recursive-delete-guard': {}
+# The overlay is a top-level array of loader patch entries — the form
+# `dsh plugin add` validates. An id-less `insert` appends this mount to the
+# profile's entry list, so the plugin joins the stack without touching any
+# existing entry.
+- insert:
+    - id: recursive-delete-guard
+      name: '@argszero/dsh-recursive-delete-guard'
